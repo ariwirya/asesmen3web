@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Data Topwear Section Fashion</title>
+  <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.25/css/jquery.dataTables.css">
+  <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+</head>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 20px;
+    background-color: #8da0aa;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+  }
+
+  th,
+  td {
+    padding: 10px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+  }
+
+  th {
+    background-color: #036442;
+    color: #ffffff;
+    font-weight: bold;
+  }
+
+  .form-container {
+  display: flex;
+  margin: 10px;
+  }
+
+  .form-container > div {
+  margin: 10px;
+  padding: 20px;
+  font-size: 30px;
+  }
+
+  .form-container input[type="text"],
+  .form-container input[type="number"] {
+    width: 200px;
+    padding: 5px;
+    margin-bottom: 10px;
+  }
+
+  .form-container input[type="submit"] {
+    padding: 5px 10px;
+    width: 300px;
+    background-color: #036442;
+    color: #ffffff;
+    border: none;
+    font-size: 16px;
+  }
+
+  .error {
+    color: red;
+  }
+
+  .h1 {
+    text-align: center;
+    color: #036442;
+    margin-top: -20px;
+  }
+
+  h2 {
+    color: #036442;
+  }
+</style>
+
+<body>
+  <div class="h1">
+    <h1>DATA TOPWEAR DI SECTION FASHION</h1>
+    <h1>RUMAH UMKM DESA CITEUREUP</h1>
+  </div>
+  <h2>TAMBAH DATA TOPWEAR</h2>
+  <div class="form-container">
+    <form id="formTambah">
+      <label for="nama">Nama Barang :</label>
+      <input type="text" id="nama" name="nama">
+      <br>
+      <label for="size">Size :</label>
+      <input type="text" id="size" name="size">
+      <br>
+      <label for="harga">Harga :</label>
+      <input type="number" id="harga" name="harga">
+      <br>
+      <input type="submit" value="Tambah">
+    </form>
+  </div>
+
+  <br>
+  <h2>UPDATE DATA TOPWEAR</h2>
+  <div class="form-container">
+    <form id="formUpdate">
+      <div class="form-group">
+        <label for="update_idtop">ID Barang :</label>
+        <input type="text" id="update_idtop" name="idtop">
+        <span class="error"></span>
+      </div>
+      <div class="form-group">
+        <label for="update_nama">Nama Barang :</label>
+        <input type="text" id="update_nama" name="nama">
+        <span class="error"></span>
+      </div>
+      <div class="form-group">
+        <label for="update_size">Size :</label>
+        <input type="text" id="update_size" name="size">
+        <span class="error"></span>
+      </div>
+      <div class="form-group">
+        <label for="update_harga">Harga :</label>
+        <input type="number" id="update_harga" name="harga">
+        <span class="error"></span>
+      </div>
+      <input type="submit" value="Update">
+    </form>
+  </div>
+
+  <table id="topwearTable">
+    <thead>
+      <tr>
+        <th>ID Barang</th>
+        <th>Nama Barang</th>
+        <th>Size</th>
+        <th>Harga</th>
+        <th>Aksi</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+<script src="https://cdn.datatables.net/1.10.25/js/jquery.dataTables.js"></script>
+<script src="https://cdn.jsdelivr.net/jquery.validation/1.16.0/jquery.validate.min.js"></script>
+<script>
+  // Mendapatkan data topwear dari server
+  function getDataTopwear() {
+    $.ajax({
+      url: 'ases3web.php',
+      method: 'GET',
+      dataType: 'json',
+      success: function (data) {
+        $('#topwearTable tbody').empty();
+
+        data.forEach(function (item) {
+          var row = '<tr>' +
+            '<td>' + item.idtop + '</td>' +
+            '<td>' + item.nama + '</td>' +
+            '<td>' + item.size + '</td>' +
+            '<td>' + item.harga + '</td>' +
+            '<td>' +
+            '<button onclick="deleteData(' + item.idtop + ')">Hapus</button>' +
+            '</td>' +
+            '</tr>';
+
+          $('#topwearTable tbody').append(row);
+        });
+
+        $('#topwearTable').DataTable();
+      },
+      error: function (xhr, status, error) {
+        console.log(error);
+      }
+    });
+  }
+
+  // Validasi formTambah
+  $('#formTambah').validate({
+    rules: {
+      nama: {
+        required: true
+      },
+      size: {
+        required: true
+      },
+      harga: {
+        required: true,
+        number: true
+      }
+    },
+    messages: {
+      nama: {
+        required: '   *Kolom "Nama" Tidak Boleh Kosong'
+      },
+      size: {
+        required: '   *Kolom "Size" Tidak Boleh Kosong'
+      },
+      harga: {
+        required: '   *Kolom "Harga" Tidak Boleh Kosong',
+        number: '   *Kolom "Nama" Harus Berupa Angka'
+      }
+    },
+    submitHandler: function (form) {
+      $.ajax({
+        url: 'ases3web.php',
+        method: 'POST',
+        dataType: 'json',
+        data: $(form).serialize(),
+        success: function (data) {
+          console.log(data);
+          getDataTopwear();
+          form.reset();
+        },
+        error: function (xhr, status, error) {
+          console.log(error);
+        }
+      });
+    }
+  });
+
+  // Validasi Form Update
+  $('#formUpdate').validate({
+    rules: {
+      idtop: {
+        required: true
+      },
+      nama: {
+        required: true
+      },
+      size: {
+        required: true
+      },
+      harga: {
+        required: true,
+        number: true
+      }
+    },
+    messages: {
+      idtop: {
+        required: '   *Kolom "ID Barang" Tidak Boleh Kosong'
+      },
+      nama: {
+        required: '   *Kolom "Nama" Tidak Boleh Kosong'
+      },
+      size: {
+        required: '   *Kolom "Size" Tidak Boleh Kosong'
+      },
+      harga: {
+        required: '   *Kolom "Harga" Tidak Boleh Kosong',
+        number: '   *Kolom "Nama" Harus Berupa Angka'
+      }
+    },
+    submitHandler: function (form) {
+      // Proses submit form update
+      $.ajax({
+        url: 'ases3web.php',
+        method: 'PUT',
+        data: $(form).serialize(),
+        dataType: 'json',
+        success: function (response) {
+          if (response.status === 'berhasil') {
+            getDataTopwear(); // Memperbarui data dalam tabel setelah berhasil melakukan update
+            // Reset form
+            form.reset();
+          }
+        }
+      });
+    }
+  });
+
+  // Menghapus data topwear dari server
+  function deleteData(id) {
+    $.ajax({
+      url: 'ases3web.php',
+      method: 'DELETE',
+      data: {
+        idtop: id
+      },
+      dataType: 'json',
+      success: function (response) {
+        if (response.status === 'berhasil') {
+          getDataTopwear();
+        }
+      },
+      error: function (xhr, status, error) {
+        console.log(error);
+      }
+    });
+  }
+
+  // Mengambil data topwear saat halaman dimuat
+  $(document).ready(function () {
+    getDataTopwear();
+  });
+</script>
+</body>
+
+</html>
